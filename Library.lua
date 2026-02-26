@@ -1278,10 +1278,10 @@
 			end 
 
 			-- dock init
-				dock_outline = library:create("Frame", {
-					Parent = sgui,
-					Name = "",
-					Visible = true,
+dock_outline = library:create("Frame", {
+    Parent = sgui,
+    Name = "",
+    Visible = false,
 					BorderColor3 = rgb(0, 0, 0),
 					AnchorPoint = vec2(0.5, 0),
 					Position = dim2(0.5, 0, 0, 20),
