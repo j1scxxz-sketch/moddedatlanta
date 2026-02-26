@@ -1538,16 +1538,36 @@
 
 
 
-				local section_holder = library:create("Frame", {
-					Parent = items.holder,
-					Name = " ",
-					BackgroundTransparency = 1,
-					Position = dim2(0, -1, 0, 0),
-					BorderColor3 = rgb(0, 0, 0),
-					Size = dim2(1, 0, 1, 0),
-					BorderSizePixel = 0,
-					BackgroundColor3 = rgb(255, 255, 255)
-				})
+window["tab_holder"] = library:create("Frame", {
+    Parent = items.holder,
+    Name = " ",
+    BackgroundTransparency = 1,
+    Size = dim2(1, 0, 0, 0),
+    Visible = false,
+    BorderColor3 = rgb(0, 0, 0),
+    ZIndex = 5,
+    BorderSizePixel = 0,
+    BackgroundColor3 = rgb(255, 255, 255)
+})
+
+library:create("UIListLayout", {
+    Parent = window["tab_holder"],
+    FillDirection = Enum.FillDirection.Horizontal,
+    HorizontalFlex = Enum.UIFlexAlignment.Fill,
+    Padding = dim(0, 2),
+    SortOrder = Enum.SortOrder.LayoutOrder
+})
+
+local section_holder = library:create("Frame", {
+    Parent = items.holder,
+    Name = " ",
+    BackgroundTransparency = 1,
+    Position = dim2(0, -1, 0, 0),
+    BorderColor3 = rgb(0, 0, 0),
+    Size = dim2(1, 0, 1, 0),
+    BorderSizePixel = 0,
+    BackgroundColor3 = rgb(255, 255, 255)
+})
 				window["section_holder"] = section_holder
 
 				local outline = library:create("Frame", {
