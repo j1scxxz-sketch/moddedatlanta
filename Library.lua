@@ -1224,252 +1224,396 @@
 			return setmetatable(cfg, library)
 		end     
 
-function library:window(properties)
-	local window = {opened = true}            
-	local opened = {}
-	local blur = library:create( "BlurEffect" , {
-		Parent = lighting;
-		Enabled = true;
-		Size = 15
-	});    
+		function library:window(properties)
+			local window = {opened = true}            
+			local opened = {}
+			local dock_outline;
+			local blur = library:create( "BlurEffect" , {
+				Parent = lighting;
+				Enabled = true;
+				Size = 15
+			});    
 
-	library.cache = library:create("ScreenGui", {
-		Enabled = false,
-		Parent = gethui(),
-		Name = "" 
-	})
+			library.cache = library:create("ScreenGui", {
+				Enabled = false,
+				Parent = gethui(),
+				Name = "" 
+			})
 
-	function window.set_menu_visibility(bool) 
-		window.opened = bool 
-		
-		if bool then 
-			for _,gui in opened do 
-				gui.Enabled = true 
-				opened = {}
-			end 
-		else
-			for _,gui in library.guis do 
-				if gui.Enabled then 
-					gui.Enabled = false
-					table.insert(opened, gui)
+			function window.set_menu_visibility(bool) 
+				window.opened = bool 
+				
+				if bool then 
+					for _,gui in opened do 
+						gui.Enabled = true 
+						opened = {}
+					end 
+				else
+					for _,gui in library.guis do 
+						if gui.Enabled then 
+							gui.Enabled = false
+							table.insert(opened, gui)
+						end
+					end
 				end
-			end
-		end
 
-		library:tween(blur, {Size = bool and (flags["Blur Size"] or 15) or 0})
+				library:tween(blur, {Size = bool and (flags["Blur Size"] or 15) or 0})
 
-		sgui.Enabled = true
-		notif_holder.Enabled = true
-		tooltip_sgui.Enabled = true
-		library.cache.Enabled = false
+				dock_outline.Visible = bool;
 
-		for _,tooltip in tooltip_sgui:GetChildren() do 
-			tooltip.Visible = false;
-		end 
+				sgui.Enabled = true
+				notif_holder.Enabled = true
+				tooltip_sgui.Enabled = true
+				library.cache.Enabled = false
 
-		if library.current_element_open then 
-			library.current_element_open.set_visible(false)
-			library.current_element_open.open = false 
-			library.current_element_open = nil 
-		end
-	end 
+				for _,tooltip in tooltip_sgui:GetChildren() do 
+					tooltip.Visible = false;
+				end 
 
-    -- dock init
-			dock_outline = library:create("Frame", {
-				Parent = sgui,
-				Name = "",
-				Visible = false,
-				BorderColor3 = rgb(0, 0, 0),
-				AnchorPoint = vec2(0.5, 0),
-				Position = dim2(0.5, 0, 0, 20),
-				Size = dim2(0, 157, 0, 39),
-				BorderSizePixel = 0,
-				BackgroundColor3 = themes.preset.outline
-			}); 
+				if library.current_element_open then 
+					library.current_element_open.set_visible(false)
+					library.current_element_open.open = false 
+					library.current_element_open = nil 
+				end
+			end 
 
-			library:apply_theme(dock_outline, "outline", "BackgroundColor3"); 
-			dock_outline.Position = dim2(0, dock_outline.AbsolutePosition.X, 0, dock_outline.AbsolutePosition.Y); 
-			dock_outline.AnchorPoint = vec2(0, 0); 
-			library:draggify(dock_outline);
+			-- dock init
+				dock_outline = library:create("Frame", {
+					Parent = sgui,
+					Name = "",
+					Visible = true,
+					BorderColor3 = rgb(0, 0, 0),
+					AnchorPoint = vec2(0.5, 0),
+					Position = dim2(0.5, 0, 0, 20),
+					Size = dim2(0, 157, 0, 39),
+					BorderSizePixel = 0,
+					BackgroundColor3 = themes.preset.outline
+				}); 
 
-			local dock_inline = library:create("Frame", {
-				Parent = dock_outline,
-				Name = "",
-				Position = dim2(0, 1, 0, 1),
-				BorderColor3 = rgb(0, 0, 0),
-				Size = dim2(1, -2, 1, -2),
-				BorderSizePixel = 0,
-				BackgroundColor3 = themes.preset.inline
-			}) library:apply_theme(dock_inline, "inline", "BackgroundColor3") 
-			
-			local dock_holder = library:create("Frame", {
-				Parent = dock_inline,
-				Name = "",
-				Size = dim2(1, -2, 1, -2),
-				Position = dim2(0, 1, 0, 1),
-				BorderColor3 = themes.preset.outline,
-				BorderSizePixel = 0,
-				BackgroundColor3 = rgb(255, 255, 255)
-			}) library:apply_theme(dock_holder, "outline", "BackgroundColor3") 
-			
-			local accent = library:create("Frame", {
-				Parent = dock_holder,
-				Name = "",
-				Size = dim2(1, 0, 0, 2),
-				BorderColor3 = rgb(0, 0, 0),
-				BorderSizePixel = 0,
-				BackgroundColor3 = themes.preset.accent
-			}) library:apply_theme(accent, "accent", "BackgroundColor3") 
-			
-			local UIGradient = library:create("UIGradient", {
-				Parent = accent,
-				Name = "",
-				Rotation = 90,
-				Color = rgbseq{
-				rgbkey(0, rgb(255, 255, 255)),
-				rgbkey(1, rgb(167, 167, 167))
-			}
-			})
-			
-			local button_holder = library:create("Frame", {
-				Parent = dock_holder,
-				Name = "",
-				BackgroundTransparency = 1,
-				Size = dim2(1, 0, 1, 0),
-				BorderColor3 = rgb(0, 0, 0),
-				BorderSizePixel = 0,
-				BackgroundColor3 = rgb(255, 255, 255)
-			}) library.dock_holder = button_holder;
-			
-			local UIListLayout = library:create("UIListLayout", {
-				Parent = button_holder,
-				Name = "",
-				Padding = dim(0, 5),
-				FillDirection = Enum.FillDirection.Horizontal,
-				SortOrder = Enum.SortOrder.LayoutOrder
-			})
-			
-			local UIPadding = library:create("UIPadding", {
-				Parent = button_holder,
-				Name = "",
-				PaddingTop = dim(0, 6),
-				PaddingBottom = dim(0, 4),
-				PaddingRight = dim(0, 4),
-				PaddingLeft = dim(0, 4)
-			})
-					
-			local UIGradient = library:create("UIGradient", {
-				Parent = dock_holder,
-				Name = "",
-				Rotation = 90,
-				Color = rgbseq{
-					rgbkey(0, rgb(41, 41, 55)),
-					rgbkey(1, rgb(35, 35, 47))
+				library:apply_theme(dock_outline, "outline", "BackgroundColor3"); 
+				dock_outline.Position = dim2(0, dock_outline.AbsolutePosition.X, 0, dock_outline.AbsolutePosition.Y); 
+				dock_outline.AnchorPoint = vec2(0, 0); 
+				library:draggify(dock_outline);
+
+				local dock_inline = library:create("Frame", {
+					Parent = dock_outline,
+					Name = "",
+					Position = dim2(0, 1, 0, 1),
+					BorderColor3 = rgb(0, 0, 0),
+					Size = dim2(1, -2, 1, -2),
+					BorderSizePixel = 0,
+					BackgroundColor3 = themes.preset.inline
+				}) library:apply_theme(dock_inline, "inline", "BackgroundColor3") 
+				
+				local dock_holder = library:create("Frame", {
+					Parent = dock_inline,
+					Name = "",
+					Size = dim2(1, -2, 1, -2),
+					Position = dim2(0, 1, 0, 1),
+					BorderColor3 = themes.preset.outline,
+					BorderSizePixel = 0,
+					BackgroundColor3 = rgb(255, 255, 255)
+				}) library:apply_theme(dock_holder, "outline", "BackgroundColor3") 
+				
+				local accent = library:create("Frame", {
+					Parent = dock_holder,
+					Name = "",
+					Size = dim2(1, 0, 0, 2),
+					BorderColor3 = rgb(0, 0, 0),
+					BorderSizePixel = 0,
+					BackgroundColor3 = themes.preset.accent
+				}) library:apply_theme(accent, "accent", "BackgroundColor3") 
+				
+				local UIGradient = library:create("UIGradient", {
+					Parent = accent,
+					Name = "",
+					Rotation = 90,
+					Color = rgbseq{
+					rgbkey(0, rgb(255, 255, 255)),
+					rgbkey(1, rgb(167, 167, 167))
 				}
-			}) library:apply_theme(UIGradient, "contrast", "Color") 
-		--
+				})
+				
+				local button_holder = library:create("Frame", {
+					Parent = dock_holder,
+					Name = "",
+					BackgroundTransparency = 1,
+					Size = dim2(1, 0, 1, 0),
+					BorderColor3 = rgb(0, 0, 0),
+					BorderSizePixel = 0,
+					BackgroundColor3 = rgb(255, 255, 255)
+				}) library.dock_holder = button_holder;
+				
+				local UIListLayout = library:create("UIListLayout", {
+					Parent = button_holder,
+					Name = "",
+					Padding = dim(0, 5),
+					FillDirection = Enum.FillDirection.Horizontal,
+					SortOrder = Enum.SortOrder.LayoutOrder
+				})
+				
+				local UIPadding = library:create("UIPadding", {
+					Parent = button_holder,
+					Name = "",
+					PaddingTop = dim(0, 6),
+					PaddingBottom = dim(0, 4),
+					PaddingRight = dim(0, 4),
+					PaddingLeft = dim(0, 4)
+				})
+						
+				local UIGradient = library:create("UIGradient", {
+					Parent = dock_holder,
+					Name = "",
+					Rotation = 90,
+					Color = rgbseq{
+						rgbkey(0, rgb(41, 41, 55)),
+						rgbkey(1, rgb(35, 35, 47))
+					}
+				}) library:apply_theme(UIGradient, "contrast", "Color") 
+			-- 
 
-	-- main window
-		local main_window = library:panel({
-			name = properties and properties.name or "Atlanta | ", 
-			size = dim2(0, 604, 0, 628),
-			position = dim2(0, (camera.ViewportSize.X / 2) - 302 - 96, 0, (camera.ViewportSize.Y / 2) - 421 - 12),
-			image = "rbxassetid://98823308062942",
-		})
+			-- keybind list
+				local outline = library:create("Frame", {
+					Parent = sgui,
+					Name = "",
+					Visible = false, 
+					Active = true,
+					Draggable = true, 
+					Position = dim2(0, 50, 0, 200),
+					BorderColor3 = rgb(0, 0, 0),
+					Size = dim2(0, 182, 0, 25),
+					BorderSizePixel = 0,
+					BackgroundColor3 = themes.preset.outline
+				})
+				library:apply_theme(outline, "outline", "BackgroundColor3") 
+				library:draggify(outline)
+				library:make_resizable(outline)
+				library.keybind_list_frame = outline 
+				
+				local inline = library:create("Frame", {
+					Parent = outline,
+					Name = "",
+					Position = dim2(0, 1, 0, 1),
+					BorderColor3 = rgb(0, 0, 0),
+					Size = dim2(1, -2, 1, -2),
+					BorderSizePixel = 0,
+					BackgroundColor3 = themes.preset.inline
+				})
+				library:apply_theme(inline, "inline", "BackgroundColor3")
 
-		local items = main_window.items
+				local background = library:create("Frame", {
+					Parent = inline,
+					Name = "",
+					Position = dim2(0, 1, 0, 1),
+					BorderColor3 = rgb(0, 0, 0),
+					Size = dim2(1, -2, 1, -2),
+					BorderSizePixel = 0,
+					BackgroundColor3 = rgb(255, 255, 255)
+				})
+				
+				local UIGradient = library:create("UIGradient", {
+					Parent = background,
+					Name = "",
+					Rotation = 90,
+					Color = rgbseq{
+						rgbkey(0, themes.preset.high_contrast),
+						rgbkey(1, themes.preset.low_contrast)
+					}
+				})
+				library:apply_theme(UIGradient, "contrast", "Color") 
+				
+				local bg = library:create("Frame", {
+					Parent = background,
+					Name = "a",
+					BorderColor3 = rgb(0, 0, 0),
+					Size = dim2(1, 0, 0, 2),
+					BorderSizePixel = 0,
+					BackgroundColor3 = themes.preset.accent
+				}); library:apply_theme(bg, "accent", "BackgroundColor3")
+				
+				
+				library:create("UIGradient", {
+					Parent = bg,
+					Name = "",
+					Enabled = true, 
+					Rotation = 90,
+					Color = rgbseq{
+						rgbkey(0, rgb(255, 255, 255)),
+						rgbkey(1, rgb(167, 167, 167))
+					}
+				})
+				
+				local text = library:create("TextLabel", {
+					Parent = background,
+					Name = "",
+					FontFace = library.font,
+					TextColor3 = themes.preset.text,
+					BorderColor3 = rgb(0, 0, 0),
+					Text = "Keybinds",
+					BackgroundTransparency = 1,
+					TextTruncate = Enum.TextTruncate.AtEnd,
+					Size = dim2(1, 0, 1, 0),
+					BorderSizePixel = 0,
+					TextSize = 12,
+					BackgroundColor3 = themes.preset.text
+				}, "text")
+				
+				local UIStroke = library:create("UIStroke", {
+					Parent = text,
+					Name = "",
+					LineJoinMode = Enum.LineJoinMode.Miter
+				})
+				
+				local text_holder = library:create("Frame", {
+					Parent = background,
+					Name = "",
+					Position = dim2(0, -2, 1, 1),
+					Size = dim2(1, 4, 0, 0),
+					BorderColor3 = rgb(0, 0, 0),
+					BorderSizePixel = 0,
+					AutomaticSize = Enum.AutomaticSize.Y,
+					BackgroundColor3 = themes.preset.outline
+				})
+				library:apply_theme(text_holder, "outline", "BackgroundColor3")
 
-		window["tab_holder"] = library:create("Frame", {
-			Parent = items.holder,
-			Name = " ",
-			BackgroundTransparency = 1,
-			Visible = false,
-			Size = dim2(1, 0, 0, 0),
-			BorderColor3 = rgb(0, 0, 0),
-			ZIndex = 5,
-			BorderSizePixel = 0,
-			BackgroundColor3 = rgb(255, 255, 255)
-		})
+				local inline = library:create("Frame", {
+					Parent = text_holder,
+					Name = "",
+					Size = dim2(1, -2, 1, -2),
+					Position = dim2(0, 1, 0, 1),
+					BorderColor3 = rgb(0, 0, 0),
+					BorderSizePixel = 0,
+					--AutomaticSize = Enum.AutomaticSize.Y,
+					BackgroundColor3 = themes.preset.inline
+				})
+				library:apply_theme(inline, "inline", "BackgroundColor3")
+				
+				local background = library:create("Frame", {
+					Parent = inline,
+					Name = "",
+					Size = dim2(1, -2, 1, -2),
+					Position = dim2(0, 1, 0, 1),
+					BorderColor3 = rgb(0, 0, 0),
+					BorderSizePixel = 0,
+					--AutomaticSize = Enum.AutomaticSize.Y,
+					BackgroundColor3 = rgb(255, 255, 255)
+				})
+				library.keybind_list = background
+				
+				local UIGradient = library:create("UIGradient", {
+					Parent = background,
+					Name = "",
+					Rotation = 90,
+					Color = rgbseq{
+						rgbkey(0, themes.preset.high_contrast),
+						rgbkey(1, themes.preset.low_contrast)
+					}
+				})
+				library:apply_theme(UIGradient, "contrast", "Color") 
+				
+				library:create("UIListLayout", {
+					Parent = background,
+					Name = "",
+					Padding = dim(0, -1),
+					SortOrder = Enum.SortOrder.LayoutOrder
+				})
+				
+				library:create("UIPadding", {
+					Parent = background,
+					Name = "",
+					PaddingBottom = dim(0, 4),
+					PaddingLeft = dim(0, 5)
+				})
+			--  
 
-		library:create("UIListLayout", {
-			Parent = window["tab_holder"],
-			FillDirection = Enum.FillDirection.Horizontal,
-			HorizontalFlex = Enum.UIFlexAlignment.Fill,
-			Padding = dim(0, 2),
-			SortOrder = Enum.SortOrder.LayoutOrder
-		})
+			-- main window
+				local main_window = library:panel({
+					name = properties and properties.name or "Atlanta | ", 
+					size = dim2(0, 604, 0, 628),
+					position = dim2(0, (camera.ViewportSize.X / 2) - 302 - 96, 0, (camera.ViewportSize.Y / 2) - 421 - 12),
+					image = "rbxassetid://98823308062942",
+				})
 
-		local section_holder = library:create("Frame", {
-			Parent = items.holder,
-			Name = " ",
-			BackgroundTransparency = 1,
-			Position = dim2(0, -1, 0, 0),
-			BorderColor3 = rgb(0, 0, 0),
-			Size = dim2(1, 0, 1, 0),
-			BorderSizePixel = 0,
-			BackgroundColor3 = rgb(255, 255, 255)
-		})
-		window["section_holder"] = section_holder
+				local items = main_window.items
 
-		local outline = library:create("Frame", {
-			Parent = section_holder,
-			Name = "\0",
-			Position = dim2(0, 1, 0, 1),
-			BorderColor3 = rgb(0, 0, 0),
-			Size = dim2(1, 0, 1, 2),
-			BorderSizePixel = 0,
-			BackgroundColor3 = themes.preset.outline
-		})
-		
-		library:apply_theme(outline, "outline", "BackgroundColor3") 
 
-		local inline = library:create("Frame", {
-			Parent = outline,
-			Name = "\0",
-			Position = dim2(0, 1, 0, 1),
-			BorderColor3 = rgb(0, 0, 0),
-			Size = dim2(1, -2, 1, -2),
-			BorderSizePixel = 0,
-			BackgroundColor3 = themes.preset.inline
-		})
-		
-		library:apply_theme(inline, "inline", "BackgroundColor3") 
 
-		local background = library:create("Frame", {
-			Parent = inline,
-			Name = "\0",
-			Position = dim2(0, 1, 0, 1),
-			BorderColor3 = rgb(0, 0, 0),
-			Size = dim2(1, -2, 1, -2),
-			BorderSizePixel = 0,
-			BackgroundColor3 = rgb(255, 255, 255)
-		})
+				local section_holder = library:create("Frame", {
+					Parent = items.holder,
+					Name = " ",
+					BackgroundTransparency = 1,
+					Position = dim2(0, -1, 0, 0),
+					BorderColor3 = rgb(0, 0, 0),
+					Size = dim2(1, 0, 1, 0),
+					BorderSizePixel = 0,
+					BackgroundColor3 = rgb(255, 255, 255)
+				})
+				window["section_holder"] = section_holder
 
-		library.section_holder = background
+				local outline = library:create("Frame", {
+					Parent = section_holder,
+					Name = "\0",
+					Position = dim2(0, 1, 0, 1),
+					BorderColor3 = rgb(0, 0, 0),
+					Size = dim2(1, 0, 1, 2),
+					BorderSizePixel = 0,
+					BackgroundColor3 = themes.preset.outline
+				})
+				
+				library:apply_theme(outline, "outline", "BackgroundColor3") 
 
-		library:create("UIPadding", {
-			Parent = background,
-			PaddingTop = dim(0, 4),
-			PaddingBottom = dim(0, 4),
-			PaddingRight = dim(0, 4),
-			PaddingLeft = dim(0, 4)
-		})
+				local inline = library:create("Frame", {
+					Parent = outline,
+					Name = "\0",
+					Position = dim2(0, 1, 0, 1),
+					BorderColor3 = rgb(0, 0, 0),
+					Size = dim2(1, -2, 1, -2),
+					BorderSizePixel = 0,
+					BackgroundColor3 = themes.preset.inline
+				})
+				
+				library:apply_theme(inline, "inline", "BackgroundColor3") 
 
-		local UIGradient = library:create("UIGradient", {
-			Parent = background,
-			Rotation = 90,
-			Color = rgbseq{
-				rgbkey(0, rgb(41, 41, 55)),
-				rgbkey(1, rgb(35, 35, 47))
-			}
-		})
-		
-		library:apply_theme(UIGradient, "contrast", "Color") 
-		library:make_resizable(items.main_holder) 
-	-- 
+				local background = library:create("Frame", {
+					Parent = inline,
+					Name = "\0",
+					Position = dim2(0, 1, 0, 1),
+					BorderColor3 = rgb(0, 0, 0),
+					Size = dim2(1, -2, 1, -2),
+					BorderSizePixel = 0,
+					BackgroundColor3 = rgb(255, 255, 255)
+				})
 
-	return setmetatable(window, library)
-end
+				library.section_holder = background
+
+				library:create("UIPadding", {
+					Parent = background,
+					PaddingTop = dim(0, 4),
+					PaddingBottom = dim(0, 4),
+					PaddingRight = dim(0, 4),
+					PaddingLeft = dim(0, 4)
+				})
+
+				local UIGradient = library:create("UIGradient", {
+					Parent = background,
+					Rotation = 90,
+					Color = rgbseq{
+						rgbkey(0, rgb(41, 41, 55)),
+						rgbkey(1, rgb(35, 35, 47))
+					}
+				})
+				
+				library:apply_theme(UIGradient, "contrast", "Color") 
+				library:make_resizable(items.main_holder) 
+			-- 
+
+
+
+			
+			--  
+
+			return setmetatable(window, library)
+		end
 
 		function library:watermark(options) 
 			local cfg = {
