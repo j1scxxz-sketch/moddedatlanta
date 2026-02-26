@@ -1536,11 +1536,12 @@
 
 				local items = main_window.items
 
-				window["tab_holder"] = library:create("Frame", {
-					Parent = items.holder,
-					Name = " ",
-					BackgroundTransparency = 1,
-					Size = dim2(1, 0, 0, 22),
+window["tab_holder"] = library:create("Frame", {
+    Parent = items.holder,
+    Name = " ",
+    BackgroundTransparency = 1,
+    Visible = false,
+    Size = dim2(1, 0, 0, 0),
 					BorderColor3 = rgb(0, 0, 0),
 					ZIndex = 5,
 					BorderSizePixel = 0,
@@ -1555,13 +1556,13 @@
 					SortOrder = Enum.SortOrder.LayoutOrder
 				})
 
-				local section_holder = library:create("Frame", {
-					Parent = items.holder,
-					Name = " ",
-					BackgroundTransparency = 1,
-					Position = dim2(0, -1, 0, 19),
-					BorderColor3 = rgb(0, 0, 0),
-					Size = dim2(1, 0, 1, -22),
+local section_holder = library:create("Frame", {
+    Parent = items.holder,
+    Name = " ",
+    BackgroundTransparency = 1,
+    Position = dim2(0, -1, 0, 0),
+    BorderColor3 = rgb(0, 0, 0),
+    Size = dim2(1, 0, 1, 0),
 					BorderSizePixel = 0,
 					BackgroundColor3 = rgb(255, 255, 255)
 				})
