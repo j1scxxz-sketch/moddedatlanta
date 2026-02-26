@@ -1274,6 +1274,101 @@ function library:window(properties)
 		end
 	end 
 
+    -- dock init
+			dock_outline = library:create("Frame", {
+				Parent = sgui,
+				Name = "",
+				Visible = false,
+				BorderColor3 = rgb(0, 0, 0),
+				AnchorPoint = vec2(0.5, 0),
+				Position = dim2(0.5, 0, 0, 20),
+				Size = dim2(0, 157, 0, 39),
+				BorderSizePixel = 0,
+				BackgroundColor3 = themes.preset.outline
+			}); 
+
+			library:apply_theme(dock_outline, "outline", "BackgroundColor3"); 
+			dock_outline.Position = dim2(0, dock_outline.AbsolutePosition.X, 0, dock_outline.AbsolutePosition.Y); 
+			dock_outline.AnchorPoint = vec2(0, 0); 
+			library:draggify(dock_outline);
+
+			local dock_inline = library:create("Frame", {
+				Parent = dock_outline,
+				Name = "",
+				Position = dim2(0, 1, 0, 1),
+				BorderColor3 = rgb(0, 0, 0),
+				Size = dim2(1, -2, 1, -2),
+				BorderSizePixel = 0,
+				BackgroundColor3 = themes.preset.inline
+			}) library:apply_theme(dock_inline, "inline", "BackgroundColor3") 
+			
+			local dock_holder = library:create("Frame", {
+				Parent = dock_inline,
+				Name = "",
+				Size = dim2(1, -2, 1, -2),
+				Position = dim2(0, 1, 0, 1),
+				BorderColor3 = themes.preset.outline,
+				BorderSizePixel = 0,
+				BackgroundColor3 = rgb(255, 255, 255)
+			}) library:apply_theme(dock_holder, "outline", "BackgroundColor3") 
+			
+			local accent = library:create("Frame", {
+				Parent = dock_holder,
+				Name = "",
+				Size = dim2(1, 0, 0, 2),
+				BorderColor3 = rgb(0, 0, 0),
+				BorderSizePixel = 0,
+				BackgroundColor3 = themes.preset.accent
+			}) library:apply_theme(accent, "accent", "BackgroundColor3") 
+			
+			local UIGradient = library:create("UIGradient", {
+				Parent = accent,
+				Name = "",
+				Rotation = 90,
+				Color = rgbseq{
+				rgbkey(0, rgb(255, 255, 255)),
+				rgbkey(1, rgb(167, 167, 167))
+			}
+			})
+			
+			local button_holder = library:create("Frame", {
+				Parent = dock_holder,
+				Name = "",
+				BackgroundTransparency = 1,
+				Size = dim2(1, 0, 1, 0),
+				BorderColor3 = rgb(0, 0, 0),
+				BorderSizePixel = 0,
+				BackgroundColor3 = rgb(255, 255, 255)
+			}) library.dock_holder = button_holder;
+			
+			local UIListLayout = library:create("UIListLayout", {
+				Parent = button_holder,
+				Name = "",
+				Padding = dim(0, 5),
+				FillDirection = Enum.FillDirection.Horizontal,
+				SortOrder = Enum.SortOrder.LayoutOrder
+			})
+			
+			local UIPadding = library:create("UIPadding", {
+				Parent = button_holder,
+				Name = "",
+				PaddingTop = dim(0, 6),
+				PaddingBottom = dim(0, 4),
+				PaddingRight = dim(0, 4),
+				PaddingLeft = dim(0, 4)
+			})
+					
+			local UIGradient = library:create("UIGradient", {
+				Parent = dock_holder,
+				Name = "",
+				Rotation = 90,
+				Color = rgbseq{
+					rgbkey(0, rgb(41, 41, 55)),
+					rgbkey(1, rgb(35, 35, 47))
+				}
+			}) library:apply_theme(UIGradient, "contrast", "Color") 
+		--
+
 	-- main window
 		local main_window = library:panel({
 			name = properties and properties.name or "Atlanta | ", 
